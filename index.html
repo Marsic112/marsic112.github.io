@@ -1,90 +1,27 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Историческая библиотека</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet">
-  <style>
-    body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
-    #graph { width: 100%; height: 500px; border: 1px solid #eee; margin-bottom: 20px; }
-    #pdf-viewer { width: 100%; height: 600px; border: none; }
-    .node { cursor: pointer; }
-    h1 { color: #333; text-align: center; }
-    .controls { margin: 20px 0; text-align: center; }
-    button { padding: 8px 15px; margin: 0 5px; }
-  </style>
-</head>
-<body>
-  <h1>База исторических книг</h1>
-  
-  <div class="controls">
-    <button onclick="resetView()">Сбросить вид</button>
-    <button onclick="togglePDF()">Скрыть/Показать PDF</button>
-  </div>
-  
-  <div id="graph"></div>
-  <iframe id="pdf-viewer" style="display: none;"></iframe>
+<!-- index.html -->
+<div class="book" onclick="showBook('book1')">
+  Название книги 1
+</div>
 
-  <script>
-    // Загрузка данных
-    fetch('data.json')
-      .then(response => response.json())
-      .then(data => {
-        // Подготовка узлов
-        const nodes = new vis.DataSet(
-          data.books.map(book => ({
-            id: book.id,
-            label: `${book.title}\n${book.author}`,
-            title: `${book.year}\nТеги: ${book.tags.join(', ')}`,
-            color: getColorByTag(book.tags[0])
-          }))
-        );
+<div id="modal" style="display: none;">
+  <h2 id="book-title"></h2>
+  <p id="book-desc"></p>
+  <a id="book-download" href="#">Скачать PDF</a>
+</div>
 
-        // Подготовка связей
-        const edges = new vis.DataSet(data.links);
-
-        // Создание графа
-        const container = document.getElementById('graph');
-        const graphData = { nodes, edges };
-        const options = {
-          nodes: { font: { size: 14 } },
-          edges: { arrows: 'to', font: { size: 12 } },
-          physics: { stabilization: false }
-        };
-        const network = new vis.Network(container, graphData, options);
-
-        // Клик по узлу - открываем PDF
-        network.on("click", function(params) {
-          if (params.nodes.length) {
-            const bookId = params.nodes[0];
-            const book = data.books.find(b => b.id == bookId);
-            const pdfViewer = document.getElementById('pdf-viewer');
-            
-            pdfViewer.style.display = 'block';
-            pdfViewer.src = book.pdf;
-          }
-        });
-      });
-
-    // Функция для цветов по тегам
-    function getColorByTag(tag) {
-      const colors = {
-        'экономика': '#FF6B6B',
-        'марксизм': '#4ECDC4',
-        'философия': '#FFD166'
-      };
-      return colors[tag] || '#A5D8FF';
-    }
-
-    // Управление интерфейсом
-    function resetView() {
-      network.fit();
-    }
-
-    function togglePDF() {
-      const viewer = document.getElementById('pdf-viewer');
-      viewer.style.display = viewer.style.display === 'none' ? 'block' : 'none';
-    }
-  </script>
-</body>
-</html>
+<script>
+  function showBook(bookId) {
+    const books = {
+      'book1': {
+        title: "История Древнего Рима",
+        desc: "Классическая книга о римской империи...",
+        pdf: "/books/rome.pdf"
+      }
+    };
+    const book = books[bookId];
+    document.getElementById("book-title").textContent = book.title;
+    document.getElementById("book-desc").textContent = book.desc;
+    document.getElementById("book-download").href = book.pdf;
+    document.getElementById("modal").style.display = "block";
+  }
+</script>
