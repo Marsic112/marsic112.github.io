@@ -1,27 +1,27 @@
-<!-- index.html -->
 <div class="book" onclick="showBook('book1')">
   Название книги 1
 </div>
 
-<div id="modal" style="display: none;">
+<div id="modal">
   <h2 id="book-title"></h2>
   <p id="book-desc"></p>
-  <a id="book-download" href="#">Скачать PDF</a>
+  <a id="book-link" href="#" target="_blank">Скачать PDF</a>
 </div>
 
 <script>
+  const books = {
+    'book1': {
+      title: "История Древнего Рима",
+      desc: "Классическая книга о римской империи...",
+      pdf: "https://drive.google.com/uc?export=download&id=1AbCdEfGhIjKlMnOpQrStUvWxYz"
+    }
+  };
+
   function showBook(bookId) {
-    const books = {
-      'book1': {
-        title: "История Древнего Рима",
-        desc: "Классическая книга о римской империи...",
-        pdf: "/books/rome.pdf"
-      }
-    };
     const book = books[bookId];
     document.getElementById("book-title").textContent = book.title;
     document.getElementById("book-desc").textContent = book.desc;
-    document.getElementById("book-download").href = book.pdf;
+    document.getElementById("book-link").href = book.pdf;
     document.getElementById("modal").style.display = "block";
   }
 </script>
