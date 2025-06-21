@@ -1,51 +1,90 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Граф исторических книг</title>
+  <title>Историческая библиотека</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css" rel="stylesheet">
   <style>
-    #graph { width: 100%; height: 600px; border: 1px solid #ddd; }
-    #pdf-viewer { width: 100%; height: 600px; margin-top: 20px; }
+    body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+    #graph { width: 100%; height: 500px; border: 1px solid #eee; margin-bottom: 20px; }
+    #pdf-viewer { width: 100%; height: 600px; border: none; }
+    .node { cursor: pointer; }
+    h1 { color: #333; text-align: center; }
+    .controls { margin: 20px 0; text-align: center; }
+    button { padding: 8px 15px; margin: 0 5px; }
   </style>
 </head>
 <body>
-  <h1>База книг для историков</h1>
+  <h1>База исторических книг</h1>
+  
+  <div class="controls">
+    <button onclick="resetView()">Сбросить вид</button>
+    <button onclick="togglePDF()">Скрыть/Показать PDF</button>
+  </div>
+  
   <div id="graph"></div>
-  <iframe id="pdf-viewer" style="display:none;"></iframe>
+  <iframe id="pdf-viewer" style="display: none;"></iframe>
 
   <script>
+    // Загрузка данных
     fetch('data.json')
       .then(response => response.json())
       .then(data => {
-        // Создаём узлы (книги)
-        const nodes = data.books.map(book => ({
-          id: book.id,
-          label: `${book.title}\n(${book.author}, ${book.year})`,
-          title: `Открыть PDF: ${book.title}`,
-          pdfUrl: book.pdf
-        }));
+        // Подготовка узлов
+        const nodes = new vis.DataSet(
+          data.books.map(book => ({
+            id: book.id,
+            label: `${book.title}\n${book.author}`,
+            title: `${book.year}\nТеги: ${book.tags.join(', ')}`,
+            color: getColorByTag(book.tags[0])
+          }))
+        );
 
-        // Создаём связи
-        const edges = data.links;
+        // Подготовка связей
+        const edges = new vis.DataSet(data.links);
 
-        // Рисуем граф
+        // Создание графа
         const container = document.getElementById('graph');
         const graphData = { nodes, edges };
-        const options = {};
+        const options = {
+          nodes: { font: { size: 14 } },
+          edges: { arrows: 'to', font: { size: 12 } },
+          physics: { stabilization: false }
+        };
         const network = new vis.Network(container, graphData, options);
 
-        // Клик по книге → открываем PDF
-        network.on("click", (event) => {
-          if (event.nodes.length) {
-            const bookId = event.nodes[0];
+        // Клик по узлу - открываем PDF
+        network.on("click", function(params) {
+          if (params.nodes.length) {
+            const bookId = params.nodes[0];
             const book = data.books.find(b => b.id == bookId);
             const pdfViewer = document.getElementById('pdf-viewer');
+            
             pdfViewer.style.display = 'block';
             pdfViewer.src = book.pdf;
           }
         });
       });
+
+    // Функция для цветов по тегам
+    function getColorByTag(tag) {
+      const colors = {
+        'экономика': '#FF6B6B',
+        'марксизм': '#4ECDC4',
+        'философия': '#FFD166'
+      };
+      return colors[tag] || '#A5D8FF';
+    }
+
+    // Управление интерфейсом
+    function resetView() {
+      network.fit();
+    }
+
+    function togglePDF() {
+      const viewer = document.getElementById('pdf-viewer');
+      viewer.style.display = viewer.style.display === 'none' ? 'block' : 'none';
+    }
   </script>
 </body>
 </html>
