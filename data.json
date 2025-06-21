@@ -1,0 +1,23 @@
+{
+  "books": [
+    {
+      "id": 1,
+      "title": "Капитал",
+      "author": "Аракчеев",
+      "year": 1867,
+      "pdf": "https://drive.google.com/file/d/1xQCigb7lc2aUJYoI4qA9EWWskQ2ukj7C/view?usp=drive_link",
+      "tags": ["экономика", "марксизм"]
+    },
+    {
+      "id": 2,
+      "title": "Анти-Дюринг",
+      "author": "Фридрих Энгельс",
+      "year": 1878,
+      "pdf": "https://drive.google.com/file/d/67890/view?usp=sharing",
+      "tags": ["философия", "марксизм"]
+    }
+  ],
+  "links": [
+    { "from": 1, "to": 2, "label": "цитирует" }
+  ]
+}
